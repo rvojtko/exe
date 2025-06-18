@@ -37,4 +37,6 @@ export interface Options {
 	 * The metadata within a version-information resource.
 	 * */
 	properties?: Properties;
+
+	assets?: Array<string>;
 }

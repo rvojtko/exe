@@ -12,7 +12,8 @@
 		"test": "ts-node ./test/build.ts",
 		"test:cli": "ts-node ./src/cli.ts ./test/exe.json",
 		"lint": "biome check --fix --error-on-warnings",
-		"watch": "npm run clean && tsc -w"
+		"watch": "npm run clean && tsc -w",
+		"prepare": "npm run build"
 	},
 	"repository": {
 		"type": "git",

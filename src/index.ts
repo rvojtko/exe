@@ -6,6 +6,7 @@ import { type ResEdit, load } from 'resedit/cjs';
 import type { VersionStringValues } from 'resedit/dist/resource';
 import type { Options } from './Options';
 import { execAsync, parseOptions, signtool, warningSuppression } from './utils';
+import glob from 'glob';
 
 // Language code for en-us and encoding codepage for UTF-16
 const language = {
@@ -28,6 +29,7 @@ async function exe(options: Options) {
 	const bundle = `${out}.bundle.js`;
 	const seaConfig = `${out}.sea-config.json`;
 	const seaBlob = `${out}.blob`;
+	const seaAssets: Record<string, string> = {};
 
 	let code = '';
 	if (opts.skipBundle) {
@@ -57,6 +59,18 @@ async function exe(options: Options) {
 
 	await fs.writeFile(bundle, code);
 
+	if (opts.assets) {
+		for (const asset of opts.assets) {
+			const files = glob.sync(asset);
+			for (const file of files) {
+				const stat = await fs.stat(file);
+				if (stat.isFile()) {
+					seaAssets[file] = file;
+				}
+			}
+		}
+	}
+
 	// Write sea-config.json
 	await fs.writeFile(
 		seaConfig,
@@ -64,6 +78,7 @@ async function exe(options: Options) {
 			{
 				main: bundle,
 				output: seaBlob,
+				assets: seaAssets,
 				disableExperimentalSEAWarning: true
 			},
 			null,
