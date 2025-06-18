@@ -28,6 +28,7 @@ async function exe(options: Options) {
 	const out = opts.out.replace(/\\/g, '/');
 	const bundle = `${out}.bundle.js`;
 	const seaConfig = `${out}.sea-config.json`;
+	const assetManifest = `${out}.sea-asset-manifest.json`;
 	const seaBlob = `${out}.blob`;
 	const seaAssets: Record<string, string> = {};
 
@@ -60,6 +61,9 @@ async function exe(options: Options) {
 	await fs.writeFile(bundle, code);
 
 	if (opts.assets) {
+//         asset-manifest.json
+
+
 		for (const asset of opts.assets) {
 			const files = glob.sync(asset);
 			for (const file of files) {
@@ -69,6 +73,8 @@ async function exe(options: Options) {
 				}
 			}
 		}
+    console.log(seaAssets);
+//         assetManifest
 	}
 
 	// Write sea-config.json
@@ -100,9 +106,10 @@ async function exe(options: Options) {
 	await inject(out, 'NODE_SEA_BLOB', Buffer.from(seaBlobData), { sentinelFuse: 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2' });
 
 	// Remove temporary files
-	await fs.unlink(bundle);
-	await fs.unlink(seaConfig);
-	await fs.unlink(seaBlob);
+// 	await fs.unlink(bundle);
+// 	await fs.unlink(seaConfig);
+// 	await fs.unlink(asset-manifest);
+// 	await fs.unlink(seaBlob);
 
 	// Modify .exe w/ ResEdit
 	const RE: typeof ResEdit = await load();
