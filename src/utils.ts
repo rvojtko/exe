@@ -37,6 +37,9 @@ export function signtool(args: string[]) {
 
 export const warningSuppression =
 	"const originalError=console.error;console.error=(msg,...args)=>{if(typeof msg==='string'&&msg.includes('Single executable application is an experimental feature and might change at any time')||msg.includes('Currently the require() provided to the main script embedded into single-executable applications only supports loading built-in modules.'))return;originalError(msg,...args);};";
+export const seaAssetLoader =
+	"";
+// 	"const fs=require('fs'),path=require('path'),{ufs}=require('unionfs'),{Volume}=require('memfs'),{patchFs}=require('fs-monkey'),{isSea,getAsset}=require('node:sea'),ofs={...fs};if(isSea())try{const e=new Volume,s=JSON.parse(getAsset('sea-asset-manifest.json','utf8'));for(const r of s.assets)e.mkdirSync(path.posix.dirname(r),{recursive:!0}),e.writeFileSync(r,Buffer.from(getAsset(r)));Object.keys(e.toJSON()).length>0&&(ufs.use(e).use(ofs),patchFs(ufs))}catch(err){console.error('Error loading SEA assets: '',err)};"
 
 type JSONValue = string | number | boolean | { [x: string]: JSONValue } | Array<JSONValue>;
 type JSONObject = Record<string, JSONValue>;

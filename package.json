@@ -45,6 +45,7 @@
 	},
 	"dependencies": {
 		"@vercel/ncc": "^0.38.3",
+		"glob": "^11.0.3",
 		"postject": "1.0.0-alpha.6",
 		"resedit": "^2.0.3",
 		"signtool": "^1.0.0"
