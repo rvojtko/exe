@@ -1,9 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const { ufs } = require('unionfs');
-const { Volume } = require('memfs');
+import fs from 'fs';
+import path from 'path';
+import { IFS, ufs } from 'unionfs';
+import { createFsFromVolume, Volume } from 'memfs';
+import { isSea, getAsset } from 'node:sea';
 const { patchFs } = require('fs-monkey');
-const { isSea, getAsset } = require('node:sea');
 
 //back up original 'fs'
 const ofs = { ...fs };
@@ -18,7 +18,8 @@ if (isSea()) {
    }
 
    if (Object.keys(vol.toJSON()).length > 0) {
-     ufs.use(vol).use(ofs);
+     const mfs = createFsFromVolume(vol)
+     ufs.use(mfs as unknown as IFS).use(ofs);
      patchFs(ufs);
    }
  } catch (err) {

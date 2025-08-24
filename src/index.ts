@@ -5,7 +5,7 @@ import { inject } from 'postject';
 import { type ResEdit, load } from 'resedit/cjs';
 import type { VersionStringValues } from 'resedit/dist/resource';
 import type { Options } from './Options';
-import { execAsync, parseOptions, signtool, warningSuppression, seaAssetLoader } from './utils';
+import { execAsync, parseOptions, signtool, warningSuppression } from './utils';
 import { glob } from 'glob';
 
 // Language code for en-us and encoding codepage for UTF-16
@@ -59,11 +59,16 @@ async function exe(options: Options) {
 		)
 	);
 
-	const loaderOutput = await ncc(resolve(__dirname, '../src/sea-loader.js'), {
-		minify: true,
-		quiet: false,
-		target: 'es2021'
-	});
+	const needLoader = Object.keys(seaAssets).length > 1;
+	if (needLoader) {
+		// const bootstrapCode = [
+		// 	`require(${JSON.stringify(loaderPath)});`,
+		// 	`require(${JSON.stringify(originalEntryAbs)});`
+		// ].join('\n');
+		// await fs.writeFile(
+		console.log("tu bude miniloader")
+
+	}
 
 	let code = '';
 	if (opts.skipBundle) {
@@ -83,14 +88,12 @@ async function exe(options: Options) {
 	// Write the bundled code to a file and prepend the SEA require() warning suppression
 	const pattern = /^#!.*\n/;
 	const match = code.match(pattern);
-	console.log("mame Shebang ")
 	if (match) {
-		console.log("anooooo")
 		// Shebang found, insert after the shebang
-		code = `${match[0]}${warningSuppression}${loaderOutput}${code.slice(match[0].length)}`;
+		code = `${match[0]}${warningSuppression}${code.slice(match[0].length)}`;
 	} else {
 		// No shebang, prepend at the beginning
-		code = `${warningSuppression}${seaAssetLoader}${code}`;
+		code = `${warningSuppression}${code}`;
 	}
 
 	await fs.writeFile(bundle, code);
