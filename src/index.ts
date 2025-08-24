@@ -6,7 +6,7 @@ import { type ResEdit, load } from 'resedit/cjs';
 import type { VersionStringValues } from 'resedit/dist/resource';
 import type { Options } from './Options';
 import { execAsync, parseOptions, signtool, warningSuppression } from './utils';
-import glob from 'glob';
+import { glob } from 'glob';
 
 // Language code for en-us and encoding codepage for UTF-16
 const language = {
@@ -28,8 +28,36 @@ async function exe(options: Options) {
 	const out = opts.out.replace(/\\/g, '/');
 	const bundle = `${out}.bundle.js`;
 	const seaConfig = `${out}.sea-config.json`;
+	const assetManifest = `sea-asset-manifest.json`;
+	const seaAssetManifest = `${out}.${assetManifest}`;
 	const seaBlob = `${out}.blob`;
-	const seaAssets: Record<string, string> = {};
+	const seaAssets: Record<string, string> = {
+		[assetManifest]: seaAssetManifest
+	};
+
+	if (opts.assets) {
+		for (const asset of opts.assets) {
+			const files = glob.sync(asset).map((f: string) => f.replace(/\\/g, "/"));
+			for (const file of files) {
+				const stat = await fs.stat(file);
+				if (stat.isFile()) {
+					seaAssets[file] = file;
+				}
+			}
+		}
+	}
+
+	// Write sea-asset-manifest.json
+	await fs.writeFile(
+		seaAssetManifest,
+		JSON.stringify(
+			{
+				assets: Object.keys(seaAssets).filter(k => k !== assetManifest)
+			},
+			null,
+			2
+		)
+	);
 
 	let code = '';
 	if (opts.skipBundle) {
@@ -39,7 +67,7 @@ async function exe(options: Options) {
 		// Bundle with ncc
 		const output = await ncc(resolve(opts.entry), {
 			minify: true,
-			quiet: true,
+			quiet: false,
 			target: 'es2021'
 		});
 
@@ -58,18 +86,6 @@ async function exe(options: Options) {
 	}
 
 	await fs.writeFile(bundle, code);
-
-	if (opts.assets) {
-		for (const asset of opts.assets) {
-			const files = glob.sync(asset);
-			for (const file of files) {
-				const stat = await fs.stat(file);
-				if (stat.isFile()) {
-					seaAssets[file] = file;
-				}
-			}
-		}
-	}
 
 	// Write sea-config.json
 	await fs.writeFile(
