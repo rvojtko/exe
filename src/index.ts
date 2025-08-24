@@ -32,12 +32,12 @@ async function exe(options: Options) {
 	const seaAssetManifest = `${out}.${assetManifest}`;
 	const seaBlob = `${out}.blob`;
 	const seaAssets: Record<string, string> = {
-		assetManifest: seaAssetManifest
+		[assetManifest]: seaAssetManifest
 	};
 
 	if (opts.assets) {
 		for (const asset of opts.assets) {
-			const files = glob.sync(asset);
+			const files = glob.sync(asset).map((f: string) => f.replace(/\\/g, "/"));
 			for (const file of files) {
 				const stat = await fs.stat(file);
 				if (stat.isFile()) {
@@ -59,11 +59,11 @@ async function exe(options: Options) {
 		)
 	);
 
-const loaderOutput = await ncc(resolve(__dirname, '../src/sea-loader.js'), {
-    minify: true,
-    quiet: false,
-    target: 'es2021'
-  });
+	const loaderOutput = await ncc(resolve(__dirname, '../src/sea-loader.js'), {
+		minify: true,
+		quiet: false,
+		target: 'es2021'
+	});
 
 	let code = '';
 	if (opts.skipBundle) {
@@ -85,10 +85,9 @@ const loaderOutput = await ncc(resolve(__dirname, '../src/sea-loader.js'), {
 	const match = code.match(pattern);
 	console.log("mame Shebang ")
 	if (match) {
-        	console.log("anooooo")
-
+		console.log("anooooo")
 		// Shebang found, insert after the shebang
-		code = `${match[0]}${warningSuppression}${loaderOutput }${code.slice(match[0].length)}`;
+		code = `${match[0]}${warningSuppression}${loaderOutput}${code.slice(match[0].length)}`;
 	} else {
 		// No shebang, prepend at the beginning
 		code = `${warningSuppression}${seaAssetLoader}${code}`;
