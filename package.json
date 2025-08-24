@@ -45,10 +45,13 @@
 	},
 	"dependencies": {
 		"@vercel/ncc": "^0.38.3",
+		"fs-monkey": "^1.1.0",
 		"glob": "^11.0.3",
+		"memfs": "^4.38.1",
 		"postject": "1.0.0-alpha.6",
 		"resedit": "^2.0.3",
-		"signtool": "^1.0.0"
+		"signtool": "^1.0.0",
+		"unionfs": "^4.6.0"
 	},
 	"engines": {
 		"node": ">=20.0.0"
